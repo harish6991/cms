@@ -4,6 +4,7 @@ const app =  express();
 const dotenv = require('dotenv')
 const db = require('./config/db');
 const category = require('./routes/category.routes')
+const bodyParser = require('body-parser');
 
 // dot env config
 dotenv.config()
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true })); // we can parse form data here
 app.use(express.static('public'));
 app.set('view engine','ejs')
 app.set('views', path.join(__dirname, 'views'))
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.render('index', { title: 'Home Page'});
