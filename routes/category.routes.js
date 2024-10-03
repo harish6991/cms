@@ -5,6 +5,8 @@ const categoryRoutes = express.Router();
 
 
 
+
+
 directoryChecker()
 
 categoryRoutes.get('/',getCategory)
