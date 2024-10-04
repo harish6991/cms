@@ -41,53 +41,196 @@
         </div>
       </div>
 
-
-
-      <div class="row">
-          <div class="col-4 mt-2">
-            <div class="card" style="width: 18rem;">
-              <img src="..." class="card-img-top" alt="...">
-              <div class="card-body">
-                <h5 class="card-title">Create A Category</h5>
-                <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                <a href="#" class="btn btn-primary">Go somewhere</a>
-              </div>
-            </div>
+      <div class="toast-container position-fixed top-0 end-0 p-3">
+        <div id="basicToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header">
+            <strong class="me-auto">Notification</strong>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
           </div>
-
+          <div class="toast-body fw-bolder text-success">
+            Posts Has been created successfully
+          </div>
+        </div>
+    </div>
+      <!-- displaying the cards -->
+      <div class="row" id="item-container">
 
       </div>
+
+
     </div>
+
+    <div id="pagination-container">
+    </div>
+
+
   </main>
 </div>
 <footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   <script>
+        // get call
+        async function fetchData(){
 
+          try {
+             const response = await fetch('/api/category', {
+               method: 'GET'
+             })
+
+             if(response.ok){
+               const result = await response.json();
+               //console.log('Server response:', result);
+               displayData(result.categories)
+
+
+
+             }
+             else{
+                console.error('Server error:', response.status, response.statusText);
+             }
+
+
+             } catch (error) {
+               console.error('Error:', error);
+             }
+
+
+        }
+        // get the data
+        fetchData()
+
+        // display the data
+        function displayData(category_data){
+          const itemsPerPage = 8;
+          const totalPages = Math.ceil(category_data.length / itemsPerPage);
+          let currentPage = 1;
+          const startIndex = (currentPage - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const items = category_data.slice(startIndex, endIndex);
+          let mapElements = [];
+          items.forEach((item, i) => {
+            mapElements.push(showCard(item))
+          });
+
+          mapElements.map((cards)=>{
+              document.getElementById("item-container").appendChild(cards)
+          })
+
+          //
+
+
+
+
+
+
+        }
+
+
+      // post call
         document.getElementById('categoryForm').addEventListener("submit",async function(e){
            e.preventDefault()
            const form = document.getElementById('categoryForm');
            const formData = new FormData(form);
-           console.log(formData)
+
 
            try {
               const response = await fetch('/api/category/create', {
                 method: 'POST',
                 body: formData
               })
-              const result = await response.json();
+
+              if(response.ok){
+                const result = await response.json();
+                console.log('Server response:', result);
+                removeModal()
+              }
+              else{
+                 console.error('Server error:', response.status, response.statusText);
+              }
 
 
               } catch (error) {
                 console.error('Error:', error);
               }
-
-
         })
-        //   let categoryTitle = document.querySelector('#title').value
-        //   let description = document.querySelector('#description').value
-        //   let file_type = document.querySelector('#file').value
-        // console.log(file_type)
+
+        function removeModal(){
+          myModal = document.querySelector("#exampleModal")
+          var modal = bootstrap.Modal.getInstance(myModal);
+          modal.hide();
+          var toastEl = document.getElementById('basicToast');
+          var toast = new bootstrap.Toast(toastEl);
+          toast.show();
+        }
+
+        // showing the element
+
+        function showCard(item){
+          // Create the element
+          console.log(item)
+          const colDiv = document.createElement("div");
+          colDiv.className = "col-4 mt-2";
+
+          const cardDiv = document.createElement("div");
+          cardDiv.className = "card";
+          cardDiv.style.width = "18rem";
+
+          const imgBox = document.createElement("img");
+          imgBox.src = item.imgsrc;
+          imgBox.alt = "Image description";
+          imgBox.className = "img-fluid";
+
+
+
+
+          const cardBodyDiv = document.createElement("div");
+          cardBodyDiv.className = "card-body";
+
+          const cardTitleH5 = document.createElement("h5");
+          cardTitleH5.className = "card-title";
+          cardTitleH5.textContent = item.category;
+
+          const cardTextP = document.createElement("p");
+          cardTextP.className = "card-text";
+          cardTextP.textContent = item.description;
+
+          const goSomewhereA = document.createElement("a");
+          goSomewhereA.href = "#";
+          goSomewhereA.className = "btn btn-primary";
+          goSomewhereA.textContent = "Go somewhere";
+
+          // Append the elements
+          cardBodyDiv.appendChild(cardTitleH5);
+          cardBodyDiv.appendChild(imgBox);
+          cardBodyDiv.appendChild(cardTextP);
+          cardBodyDiv.appendChild(goSomewhereA);
+
+          cardDiv.appendChild(cardBodyDiv);
+
+          colDiv.appendChild(cardDiv);
+          return colDiv;
+
+          //document.getElementById("item-container").appendChild(colDiv)
+
+        }
+
+        function updatePagination() {
+          const paginationContainer = document.getElementById("pagination-container");
+          paginationContainer.innerHTML = "";
+          for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement("button");
+            pageButton.textContent = i;
+            pageButton.addEventListener("click", () => {
+              currentPage = i;
+              displayData();
+              updatePagination();
+            });
+            paginationContainer.appendChild(pageButton);
+          }
+      }
+
+      updatePagination()
 
 
 
