@@ -1,6 +1,8 @@
+const path = require('path');
 const categoryDb = require('../models/category.models');
 const {directoryChecker,upload} = require('../library/helpers/imageHandler')
 const multer = require('multer');
+
 
 //const directoryPath = './uploads';
 
@@ -8,27 +10,24 @@ const multer = require('multer');
 // create Category
 exports.createCategory =  async(req,res,next)=>{
     try{
-      //let {categoryTitle,description,file,username} = req.body;
-      console.log(req.file)
-      console.log(req.body)
-      //let {file} = req.body;
+      let {title,description} = req.body;
+      let username = `rawatu74@gmail.com`
+      let imageSrc = req.file.path
+      if (!title || !description) {
+                  return res.status(400).json({ error: "category Title & description is required" });
+          }
 
-      res.status(201).json({message:'testing is on'})
-      // if (!categoryTitle || !description) {
-      //             return res.status(400).json({ error: "category Title & description is required" });
-      //     }
-      //
-      //     await categoryDb.run(
-      //           `INSERT INTO cateogry (category, description, imgsrc, user)
-      //           VALUES (?, ?, ?, ?)`,
-      //           [categoryTitle,description,imageSrc,username],
-      //           function (err) {
-      //               if (err) {
-      //                   return res.status(500).json({ error: "Error inserting category" });
-      //               }
-      //               return res.status(201).json({message: "Category created successfully",categoryId: this.lastID,});
-      //           }
-      //       )
+          await categoryDb.run(
+                `INSERT INTO cateogry (category, description, imgsrc, user)
+                VALUES (?, ?, ?, ?)`,
+                [title,description,imageSrc,username],
+                function (err) {
+                    if (err) {
+                        return res.status(500).json({ error: "Error inserting category" });
+                    }
+                    return res.status(201).json({message: "Category created successfully",categoryId: this.lastID,});
+                }
+            )
     }
     catch(Err){
       console.error("Error:", Err);

@@ -15,6 +15,7 @@ app.use(express.static('public'));
 app.set('view engine','ejs')
 app.set('views', path.join(__dirname, 'views'))
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/api/category',category);
 
 app.get('/', (req, res) => {
     res.render('index', { title: 'Home Page'});
@@ -28,7 +29,7 @@ app.get('/posts', (req, res) => {
     res.render('posts', { title: 'Posts'});
 });
 // cateogry routes
-app.use('/api/category',category);
+
 
 
 
